@@ -132,10 +132,11 @@ app.use((err, req, res, next) => {
 
 // ─── Start ────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 8080;
-server.listen(PORT, () => {
-  console.log(`\n🚀 OpsPilot API running on port ${PORT}`);
+const HOST = process.env.HOST || '0.0.0.0';
+server.listen(PORT, HOST, () => {
+  console.log(`\n🚀 OpsPilot API running on ${HOST}:${PORT}`);
   console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL}`);
+  console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'https://opspilot-claw-production.up.railway.app'}`);
   console.log(`✅ Ready\n`);
 });
 
