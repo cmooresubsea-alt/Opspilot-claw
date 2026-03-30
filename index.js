@@ -23,7 +23,7 @@ const server = http.createServer(app);
 // ─── Socket.io (Real-time messaging) ─────────────────────────────────────────
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: process.env.FRONTEND_URL || 'https://opspilot-claw-production.up.railway.app',
     methods: ['GET', 'POST'],
     credentials: true
   }
@@ -82,7 +82,7 @@ io.on('connection', (socket) => {
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: process.env.FRONTEND_URL || 'https://opspilot-claw-production.up.railway.app',
   credentials: true
 }));
 
@@ -131,7 +131,7 @@ app.use((err, req, res, next) => {
 });
 
 // ─── Start ────────────────────────────────────────────────────────────────────
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => {
   console.log(`\n🚀 OpsPilot API running on port ${PORT}`);
   console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
