@@ -110,13 +110,44 @@ app.use('/api/messages', messagesRouter);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/billing', billingRoutes);
 
+// ─── Root route (for Railway health checks) ──────────────────────────────────
+app.get('/', (req, res) => {
+  console.log('🏠 Root route accessed');
+  res.json({
+    name: 'OpsPilot API',
+    version: '1.0.1',
+    status: 'running',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
 // ─── Health Check ─────────────────────────────────────────────────────────────
 app.get('/health', async (req, res) => {
+  console.log('🩺 Health check requested');
   try {
-    await query('SELECT 1');
-    res.json({ status: 'ok', timestamp: new Date().toISOString(), version: '1.0.0' });
+    // Use a timeout to prevent hanging
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Database timeout')), 5000)
+    );
+    
+    const dbPromise = query('SELECT 1');
+    await Promise.race([dbPromise, timeoutPromise]);
+    
+    console.log('✅ Health check passed');
+    res.json({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(), 
+      version: '1.0.1',
+      uptime: process.uptime()
+    });
   } catch (err) {
-    res.status(503).json({ status: 'error', database: 'unavailable' });
+    console.log('❌ Health check failed:', err.message);
+    res.status(503).json({ 
+      status: 'error', 
+      database: 'unavailable', 
+      error: err.message 
+    });
   }
 });
 
