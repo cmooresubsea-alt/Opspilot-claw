@@ -3,7 +3,7 @@ const express = require('express');
 const app = express();
 
 const PORT = process.env.PORT || 8080;
-const HOST = process.env.HOST || '0.0.0.0';
+const HOST = '0.0.0.0'; // Railway requires 0.0.0.0, don't fallback
 
 // Basic routes
 app.get('/', (req, res) => {
