@@ -2,7 +2,7 @@
   "name": "opspilot-backend",
   "version": "1.0.1",
   "description": "OpsPilot API server",
-  "main": "src/index.js",
+  "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js"
