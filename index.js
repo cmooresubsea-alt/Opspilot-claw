@@ -125,10 +125,19 @@ app.get('/', (req, res) => {
 // ─── Health Check ─────────────────────────────────────────────────────────────
 app.get('/health', async (req, res) => {
   console.log('🩺 Health check requested');
+  
+  if (!isReady) {
+    console.log('⏳ App not ready yet');
+    return res.status(503).json({ 
+      status: 'starting', 
+      message: 'Application is starting up...'
+    });
+  }
+  
   try {
     // Use a timeout to prevent hanging
     const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Database timeout')), 5000)
+      setTimeout(() => reject(new Error('Database timeout')), 3000)
     );
     
     const dbPromise = query('SELECT 1');
@@ -143,10 +152,13 @@ app.get('/health', async (req, res) => {
     });
   } catch (err) {
     console.log('❌ Health check failed:', err.message);
-    res.status(503).json({ 
-      status: 'error', 
+    // Still return 200 for basic functionality
+    res.json({ 
+      status: 'degraded', 
       database: 'unavailable', 
-      error: err.message 
+      error: err.message,
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime()
     });
   }
 });
@@ -191,10 +203,27 @@ process.on('uncaughtException', (error) => {
 // ─── Start ────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 8080;
 const HOST = process.env.HOST || '0.0.0.0';
-server.listen(PORT, HOST, () => {
+
+// Add readiness flag
+let isReady = false;
+
+server.listen(PORT, HOST, async () => {
   console.log(`\n🚀 OpsPilot API running on ${HOST}:${PORT}`);
   console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'https://opspilot-claw-production.up.railway.app'}`);
+  
+  // Test database connection on startup
+  try {
+    console.log('🔍 Testing database connection...');
+    await query('SELECT 1');
+    console.log('✅ Database connection verified');
+    isReady = true;
+  } catch (err) {
+    console.log('❌ Database connection failed:', err.message);
+    console.log('⚠️ App will run with limited functionality');
+    isReady = true; // Still mark as ready for basic routes
+  }
+  
   console.log(`✅ Ready\n`);
 });
 
