@@ -4,7 +4,8 @@
   "description": "OpsPilot API server",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node test-server.js",
+    "start-full": "node index.js",
     "dev": "nodemon index.js"
   },
   "dependencies": {
